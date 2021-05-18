@@ -1,9 +1,13 @@
 from tkinter import*
 from tkinter import ttk
 from PIL import Image, ImageTk
+import tkinter
 from student import Student
 import mysql.connector
 from developers import Developers
+from help import Help
+from time import strftime
+from datetime import datetime
 
 
 
@@ -59,6 +63,17 @@ class Face_Recognition_system:
 
         title_lbl.place(x=0,y=130,width=1500,height=45)
 
+        #Time
+        def time():
+                string = strftime('%H:%M:%S %p')
+                lbl.config(text = string)
+                lbl.after(1000, time)
+
+        lbl = Label(title_lbl, font = ('Arial',14,'bold'),bg='white',fg='#25383C')
+        lbl.place(x=0,y=0,width=110,height=50)
+        time()
+
+
         #Attendies button
         img3=Image.open(r"C:\Users\ANCHAL\Desktop\dice_scrolling\face_detection_img\Atten.jpg")
         img3=img3.resize((200,200),Image.ANTIALIAS) # Antialas converts high level image into low lwvwl img
@@ -113,7 +128,7 @@ class Face_Recognition_system:
         b1=Button(self.root, image=self.photoimg6,cursor="hand2")
         b1.place(x=950,y=200,width=200, height=150)
 
-        b1_1=Button(self.root, text="Help",command=self.details,cursor="hand2" ,font=("times new roman",15,"bold","italic"),
+        b1_1=Button(self.root, text="Help",command=self.Help,cursor="hand2",font=("times new roman",15,"bold","italic"),
         bg="red",
         fg="blue"
         )
@@ -128,7 +143,7 @@ class Face_Recognition_system:
         b1=Button(self.root, image=self.photoimg7,cursor="hand2")
         b1.place(x=950,y=400,width=200, height=150)
 
-        b1_1=Button(self.root, text="Exit",cursor="hand2" ,font=("times new roman",15,"bold","italic"),
+        b1_1=Button(self.root, text="Exit",cursor="hand2",command=self.iexit ,font=("times new roman",15,"bold","italic"),
         bg="red",
         fg="blue"
         )
@@ -188,10 +203,18 @@ class Face_Recognition_system:
     def Developers(self):
             self.new_window= Toplevel(self.root)   
             self.app=Developers(self.new_window) 
-  
-         
 
 
+    def Help(self):
+            self.new_window= Toplevel(self.root)   
+            self.app=Help(self.new_window)
+
+    def iexit(self):
+            self.iexit=tkinter.messagebox.askyesno("Face Recognition","Do you want to Exit ?",parent=self.root)
+            if self.iexit >0:
+                    self.root.destroy()
+            else:
+                    return
          
              
 
