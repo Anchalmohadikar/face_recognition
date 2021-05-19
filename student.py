@@ -148,6 +148,14 @@ class Student:
         
 
         self.attendies_table.pack(fill=BOTH,expand=1)
+        
+        self.attendies_table.bind("<ButtonRelease>",self.get_cursor)
+
+        self.fetch_data()
+
+
+
+        
 
 
 
@@ -315,13 +323,13 @@ class Student:
         save=Button(btn_frame,text="submit",command=self.add_data, font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
         save.grid(row=0,column=0,padx=10,pady=10)
 
-        update=Button(btn_frame,text="update", font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
+        update=Button(btn_frame,text="update",command=self.update_data, font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
         update.grid(row=0,column=2)
 
-        delete=Button(btn_frame,text="delete", font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
+        delete=Button(btn_frame,text="delete",command=self.delete_data, font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
         delete.grid(row=1,column=0)
 
-        reset=Button(btn_frame,text="reset", font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
+        reset=Button(btn_frame,text="reset",command=self.reset_data, font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
         reset.grid(row=0,column=3,padx=10)
 
         sample=Button(btn_frame,text="Capture image sample", font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
@@ -331,13 +339,13 @@ class Student:
         update_img.grid(row=1,column=3)
 
     def add_data(self):
-            if self.var_name.get()=="Enter name" or self.var_dep.get()=="" or self.va.id.get()=="" :
+            if self.var_name.get()=="Enter name" or self.var_dep.get()=="" or self.var_id.get()=="" :
                     messagebox.showerror("Error","All fields are required",parent=self.root)
             else:
                     try:
-                            conn=mysql.connector.connect(host="127.0.0.1",username="root",password="Anchal@1234",database="face_recognition.student")
-                            my_cursor=conn.my_cursor()
-                            my_cursor.execute("insert into student values(%s,%s,%s,%s,%s,%s,%s,%s)",(
+                            conn=mysql.connector.connect(host="localhost",username="root",password="Anchal@1234",database="face_recognition")
+                            my_cursur=conn.cursor()
+                            my_cursur.execute("insert into student values(%s,%s,%s,%s,%s,%s,%s,%s)",(
                                                                                                        self.var_id.get(),
                                                                                                        self.var_name.get(),
                                                                                                        self.var_dep.get(),
@@ -348,6 +356,7 @@ class Student:
                                                                                                        self.var_gender.get()
                                                                                                 ))
                             conn.commit()
+                            self.fetch_data()
                             conn.close()
                             messagebox.showinfo("success","details has been added successfully",parent=self.root)
                     except Exception as es:
@@ -363,7 +372,127 @@ class Student:
 
 
 
-    #def generate_dataset(self):
+    def fetch_data(self):
+            conn=mysql.connector.connect(host="localhost",username="root",password="Anchal@1234",database="face_recognition")
+            my_cursur=conn.cursor()
+            my_cursur.execute("select * from student")
+            data=my_cursur.fetchall()
+
+            if len(data)!=0:
+                    self.attendies_table.delete(*self.attendies_table.get_children())
+                    for i in data:
+                            self.attendies_table.insert("",END, values=i)
+                    conn.commit()
+            conn.close()
+
+
+            # get cursur
+    def get_cursor(self,event=""):
+                    cursor_focus=self.attendies_table.focus()
+                
+                    content=self.attendies_table.item(cursor_focus)
+                    data=content["values"]
+
+
+                    self.var_id.set(data[0]),
+                    self.var_name.set(data[1]),
+                    self.var_dep.set(data[2]),
+                    self.var_email.set(data[3]),
+                    self.var_phone.set(data[4]),
+                    self.var_address.set(data[5]),
+                    self.var_DOB.set(data[6]),
+                    self.var_gender.set(data[7]) 
+
+# update function
+
+    def update_data(self):
+             if self.var_name.get()=="Enter name" or self.var_dep.get()=="" or self.var_id.get()=="" :
+                    messagebox.showerror("Error","All fields are required",parent=self.root)
+
+             else:
+                     try:
+                             update=messagebox.askyesno("update","Do you want to update details?",parent=self.root)
+                             if update>0:
+                                     conn=mysql.connector.connect(host="localhost",username="root",password="Anchal@1234",database="face_recognition")
+                                     my_cursur=conn.cursor()
+                                     my_cursur.execute("update student set  Name=%s,department=%s,Email=%s,phone=%s,Address=%s,DOB=%s,Gender=%s where iID=%s",(
+
+                                                                                                       
+                                                                                                       self.var_name.get(),
+                                                                                                       self.var_dep.get(),
+                                                                                                       self.var_email.get(),
+                                                                                                       self.var_phone.get(),
+                                                                                                       self.var_address.get(),
+                                                                                                       self.var_DOB.get(),
+                                                                                                       self.var_gender.get(),
+                                                                                                       self.var_id.get()
+                                                                                                       
+
+
+                                     ))
+                             else:
+                                      if  not update:
+                                              return
+                             messagebox.showinfo("success","successfully updated",parent=self.root)
+                             conn.commit()
+                             self.fetch_data()
+                             conn.close()
+                     except   Exception as es:
+                             messagebox.showerror("Error",f"Due To:{str(es)}",parent=self.root)
+        
+
+    # delete function
+    def delete_data(self):
+        if self.var_id.get()=="":
+                messagebox.showerror("Error","student id must be required",parent=self.root)
+        else:
+                try:
+                        delete=messagebox.askyesno("student Delete Page","Do you want to delete details?",parent=self.root) 
+                        if delete>0: 
+                                 conn=mysql.connector.connect(host="localhost",username="root",password="Anchal@1234",database="face_recognition")
+                                 my_cursur=conn.cursor()
+                                 sql="delete from student where iId=%s"
+                                 val=(self.var_id.get(),)
+                                 my_cursur.execute(sql,val)
+                        else:
+                                if not delete:
+                                        return
+                        conn.commit()
+                        self.fetch_data()
+                        conn.close()
+                        messagebox.showinfo("success","Sucessfully deleted",parent=self.root)
+
+                except   Exception as es:
+
+                        messagebox.showerror("Error",f"Due To:{str(es)}",parent=self.root)
+        
+
+    def reset_data(self):
+             self.var_id.set("enter roll no."),
+             self.var_name.set("Enter your name"),
+             self.var_dep.set("enter the dep name"),
+             self.var_email.set(""),
+             self.var_phone.set(""),
+             self.var_address.set(""),
+             self.var_DOB.set(""),
+             self.var_gender.set("")
+
+                                 
+                                     
+
+
+
+
+ 
+     
+     
+                    
+        
+
+
+    
+
+
 
 
                     
