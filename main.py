@@ -8,7 +8,10 @@ from developers import Developers
 from help import Help
 from time import strftime
 from datetime import datetime
-
+import os
+from train import Train
+from face_recognition import Face_recognition
+from attendence import Attendece
 
 
 
@@ -97,7 +100,7 @@ class Face_Recognition_system:
         b1=Button(self.root, image=self.photoimg4,cursor="hand2")
         b1.place(x=450,y=200,width=200, height=150)
 
-        b1_1=Button(self.root, text="Face detector",cursor="hand2" ,font=("times new roman",15,"bold","italic"),
+        b1_1=Button(self.root, text="Face detector",command=self.Face_data,cursor="hand2" ,font=("times new roman",15,"bold","italic"),
         bg="red",
         fg="blue"
         )
@@ -112,7 +115,7 @@ class Face_Recognition_system:
         b1=Button(self.root, image=self.photoimg5,cursor="hand2")
         b1.place(x=700,y=200,width=200, height=150)
 
-        b1_1=Button(self.root, text="Attendence",cursor="hand2" ,font=("times new roman",15,"bold","italic"),
+        b1_1=Button(self.root, text="Attendence",command = self.Attendece_data,cursor="hand2" ,font=("times new roman",15,"bold","italic"),
         bg="red",
         fg="blue"
         )
@@ -172,11 +175,14 @@ class Face_Recognition_system:
         b1=Button(self.root, image=self.photoimg9,cursor="hand2")
         b1.place(x=450,y=400,width=200, height=150)
 
-        b1_1=Button(self.root, text="Photos",cursor="hand2" ,font=("times new roman",15,"bold","italic"),
+        b1_1=Button(self.root, text="Photos",cursor="hand2" ,command=self.show_img,font=("times new roman",15,"bold","italic"),
         bg="red",
         fg="blue"
         )
         b1_1.place(x=450,y=520,width=200, height=40)
+
+        
+
 
 
 #train data
@@ -187,12 +193,18 @@ class Face_Recognition_system:
         b1=Button(self.root, image=self.photoimg10,cursor="hand2")
         b1.place(x=200,y=400,width=200, height=150)
 
-        b1_1=Button(self.root, text="Train Data",cursor="hand2" ,font=("times new roman",15,"bold","italic"),
+        b1_1=Button(self.root, text="Train Data", command= self.Train,cursor="hand2" ,font=("times new roman",15,"bold","italic"),
         bg="red",
         fg="blue"
         )
         b1_1.place(x=200,y=520,width=200, height=40)
 
+
+        def show_img(self):
+
+                os.startfile("data")
+
+        
        
 
 # ********************functiom button
@@ -200,14 +212,34 @@ class Face_Recognition_system:
             self.new_window= Toplevel(self.root)   
             self.app=Student(self.new_window) 
 
+    def Face_data(self):
+            self.new_window= Toplevel(self.root)   
+            self.app=Face_recognition(self.new_window) 
+
+
     def Developers(self):
             self.new_window= Toplevel(self.root)   
             self.app=Developers(self.new_window) 
+
+    def Train(self):
+            self.new_window= Toplevel(self.root)   
+            self.app=Train(self.new_window) 
 
 
     def Help(self):
             self.new_window= Toplevel(self.root)   
             self.app=Help(self.new_window)
+
+    def Attendece_data(self):
+            self.new_window= Toplevel(self.root)   
+            self.app=Attendece(self.new_window)
+            
+    def show_img(self):
+                os.startfile("data")
+
+    
+    
+    
 
     def iexit(self):
             self.iexit=tkinter.messagebox.askyesno("Face Recognition","Do you want to Exit ?",parent=self.root)

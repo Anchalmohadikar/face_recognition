@@ -217,6 +217,8 @@ class Student:
 
         Name_entry=ttk.Entry(Left_frame,textvariable=self.var_name, width=31)
         Name_entry.grid(row=0,column=1,padx=10,sticky=W)
+
+        
 #id
 
         Id_lbl=Label(Left_frame, text="ID:", 
@@ -332,7 +334,7 @@ class Student:
         reset=Button(btn_frame,text="reset",command=self.reset_data, font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
         reset.grid(row=0,column=3,padx=10)
 
-        sample=Button(btn_frame,text="Capture image sample", font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
+        sample=Button(btn_frame,text="Capture image sample",command=self.generate_dataset, font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
         sample.grid(row=1,column=2)
 
         update_img=Button(btn_frame,text="update image sample", font=("times new roman",14,"bold"),bg="green",fg="white",width=17)
@@ -477,7 +479,78 @@ class Student:
              self.var_DOB.set(""),
              self.var_gender.set("")
 
-                                 
+     #take photo samples
+    def generate_dataset(self):
+             if self.var_name.get()=="Enter name" or self.var_dep.get()=="" or self.var_id.get()=="" :
+                    messagebox.showerror("Error","All fields are required",parent=self.root)
+
+             else:
+                     try:
+                             
+                             conn=mysql.connector.connect(host="localhost",username="root",password="Anchal@1234",database="face_recognition")
+                             my_cursur=conn.cursor()
+                             my_cursur.execute("select * from student")
+                             myresult=my_cursur.fetchall()
+                             id=0
+                             for x in myresult:
+                                     id+=1
+                             my_cursur.execute("update student set  Name=%s,department=%s,Email=%s,phone=%s,Address=%s,DOB=%s,Gender=%s where iID=%s",(
+
+                                                                                                       
+                                                                                                       self.var_name.get(),
+                                                                                                       self.var_dep.get(),
+                                                                                                       self.var_email.get(),
+                                                                                                       self.var_phone.get(),
+                                                                                                       self.var_address.get(),
+                                                                                                       self.var_DOB.get(),
+                                                                                                       self.var_gender.get(),
+                                                                                                       self.var_id.get()==id+1
+                             ))
+
+                             conn.commit()
+                             self.fetch_data()
+                             self.reset_data()
+                             conn.close()
+
+                             #=============load predefined data on frontal from open cv
+
+                             face_classifier=cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+
+                             def face_cropped(img):
+                                     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+                                     faces=face_classifier.detectMultiScale(gray,1.3,5)
+                                     # scaling factor =1.3
+                                     #minimum neighor =5
+                                     for (x,y,w,h) in faces:
+                                             face_cropped=img[y:y+h, x:x+w]
+                                             return face_cropped
+
+                             cap=cv2.VideoCapture(0)
+                             img_id=0
+                             while True:
+                                     ret,my_frame=cap.read()
+                                     if face_cropped(my_frame) is not None:
+                                             img_id+=1
+                                             face=cv2.resize(face_cropped(my_frame),(450,450))
+                                             face=cv2.cvtColor(face,cv2.COLOR_BGR2GRAY)
+                                             file_name_path="data/user."+str(id)+"."+str(img_id)+".jpg"
+                                             cv2.imwrite(file_name_path,face)
+                                             cv2.putText(face,str(img_id),(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
+                                             cv2.imshow("Detected face",face)
+
+                                     if cv2.waitKey(1)==13 or int(img_id)==100:
+                                             break
+                             cap.release()
+                             cv2.destroyAllWindows()
+                             messagebox.showinfo("Result","Generating data set is completed!!!!!")
+                     except   Exception as es:
+                             messagebox.showerror("Error",f"Due To:{str(es)}",parent=self.root)
+
+                                     
+
+
+                              
+
                                      
 
 
